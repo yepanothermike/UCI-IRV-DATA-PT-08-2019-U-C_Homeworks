@@ -89,12 +89,12 @@ with open(output_path, 'w') as csvfile:
 
     # Write rows (column headers)]})'])
 
-    csvwriter.writerow('Election Results')
-    csvwriter.writerow('------------------------------------------')
+    csvwriter.writerow(['Election Results'])
+    csvwriter.writerow(['------------------------------------------'])
     
     # The total number of months included in the dataset# The total number of votes cast
-    csvwriter.writerow(f'Total Votes: {votes_tot}')
-    csvwriter.writerow('------------------------------------------')
+    csvwriter.writerow([f'Total Votes: {votes_tot}'])
+    csvwriter.writerow(['------------------------------------------'])
     
     # A complete list of candidates who received votes
     # The percentage of votes each candidate won
@@ -103,12 +103,12 @@ with open(output_path, 'w') as csvfile:
     # initialize row index
     i = 0
     for candidate in candidates:
-        csvwriter.writerow(f'{candidates[i]}: {round(candidate_votes[i]/votes_tot, ndigits=5)*100} % ({candidate_votes[i]})')
+        csvwriter.writerow([f'{candidates[i]}: {round(candidate_votes[i]/votes_tot, ndigits=5)*100} % ({candidate_votes[i]})'])
         i = i+1
     
-    csvwriter.writerow('------------------------------------------')
+    csvwriter.writerow(['------------------------------------------'])
     # The winner of the election based on popular vote.
     # find the index of the maximum votes
     winner_i = candidate_votes.argmax(axis=0)
     
-    csvwriter.writerow(f'Winner: {candidates[winner_i]} ({candidate_votes[winner_i]})')
+    csvwriter.writerow([f'Winner: {candidates[winner_i]} ({candidate_votes[winner_i]})'])
