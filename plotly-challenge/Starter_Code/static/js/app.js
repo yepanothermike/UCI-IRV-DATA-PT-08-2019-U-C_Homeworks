@@ -1,98 +1,90 @@
 // load JSON data
-
 // data = d3.json("users.json", function(d) {
 //     console.log(d)
 //     return d
 // });
 // console.log(d);
 
-console.log(data.names);
-// Create bar chart
-var barData = [{
-  type: 'bar',
-  x: [20, 14, 23],
-  y: ['giraffes', 'orangutans', 'monkeys'],
-  orientation: 'h'
-}];
+// could not get the load JSON method to work for some reason so I created a .js file with the data as a var
+// console.log(data); // confirm the data is there
 
-Plotly.newPlot("bar", barData);
+var sample0 = data.samples[0]; // get the first sample as initial values
+console.log(sample0);
+
+// sort the values
+var sorted0 = sample0.sample_values.sort((a, b) => b.sample_values - a.sample_values);
+
+// get Trace0
+i = 0;
+
+// define update page function to be used with callbacks
+function updatePage(i) {
+    // get data
+    var sample_vals = data.samples[i].sample_values.slice(0,10).reverse();
+    var otu_ids = data.samples[i].otu_ids.slice(0,10).reverse();
+
+    // define trace
+    var trace0 = {
+      x: sample_vals,
+      y: `${otu_ids}`,
+      text: "",
+      name: data.samples[i].id,
+      type: "bar",
+      orientation: "h"
+    };
+
+    // data
+    var barData = [trace0];
+
+    // Apply the group bar mode to the layout
+    var layout = {
+      title: `10 largest sample for OTU ID: ${data.samples[i].id}`,
+      margin: {
+        l: 100,
+        r: 100,
+        t: 100,
+        b: 100
+      }
+    };
+
+    // update plot
+    Plotly.newPlot("bar", barData, layout);
+}
+
+var n = 0;
+// Define dropdown function changed
+function optionChanged(value) {
+    var indOfID = window.data.names.findIndex(element => element === value); // use arrow fun to find index of list value
+    var demoData = window.data.metadata[indOfID];  // using window.var as a prepend to access data as a global variable
+    console.log(demoData); // debug log
+
+    // update bardata
+    updatePage(indOfID);
+
+    // update demographic info
+    // select html
+    var selection = d3.select("#sample-metadata");
+    selection.html("");
+
+    // iterate through data and add to Demographic info
+    Object.entries(demoData).forEach(([key, val]) => {
+        // n = n + 1;
+        // console.log(n)
+        // console.log(demoData)
+        // console.log(`${key}: ${val}`);
+        selection.append("h6").text(`${key}: ${val}`);
+    });
+};
 
 
+// populate the drop down menu with all names using d3
+d3.select("#selDataset").selectAll("option")
+  .data(data.names)
+  .enter() // creates placeholder for new data
+  .append("option") // appends a div to placeholder
+  // .classed("col-md-4 thumbnail", true) // sets the class of the new div
+  .html(function(d) {
+    return `<option value="ID_${d}">${d}</option>`;
+  });
 
-// // from: https://bl.ocks.org/hrecht/f84012ee860cb4da66331f18d588eee3
-// //sort bars based on value
-// data = data.sort(function (a, b) {
-//     return d3.ascending(a.value, b.value);
-// })
-//
-// //set up svg using margin conventions - we'll need plenty of room on the left for labels
-// var margin = {
-//     top: 15,
-//     right: 25,
-//     bottom: 15,
-//     left: 60
-// };
-//
-// var width = 960 - margin.left - margin.right,
-//     height = 500 - margin.top - margin.bottom;
-//
-// var svg = d3.select("#graphic").append("svg")
-//     .attr("width", width + margin.left + margin.right)
-//     .attr("height", height + margin.top + margin.bottom)
-//     .append("g")
-//     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-//
-// var x = d3.scale.linear()
-//     .range([0, width])
-//     .domain([0, d3.max(data, function (d) {
-//         return d.value;
-//     })]);
-//
-// var y = d3.scale.ordinal()
-//     .rangeRoundBands([height, 0], .1)
-//     .domain(data.map(function (d) {
-//         return d.name;
-//     }));
-//
-// //make y axis to show bar names
-// var yAxis = d3.svg.axis()
-//     .scale(y)
-//     //no tick marks
-//     .tickSize(0)
-//     .orient("left");
-//
-// var gy = svg.append("g")
-//     .attr("class", "y axis")
-//     .call(yAxis)
-//
-// var bars = svg.selectAll(".bar")
-//     .data(data)
-//     .enter()
-//     .append("g")
-//
-// //append rects
-// bars.append("rect")
-//     .attr("class", "bar")
-//     .attr("y", function (d) {
-//         return y(d.name);
-//     })
-//     .attr("height", y.rangeBand())
-//     .attr("x", 0)
-//     .attr("width", function (d) {
-//         return x(d.value);
-//     });
-//
-// //add a value label to the right of each bar
-// bars.append("text")
-//     .attr("class", "label")
-//     //y position of the label is halfway down the bar
-//     .attr("y", function (d) {
-//         return y(d.name) + y.rangeBand() / 2 + 4;
-//     })
-//     //x position is 3 pixels to the right of the bar
-//     .attr("x", function (d) {
-//         return x(d.value) + 3;
-//     })
-//     .text(function (d) {
-//         return d.value;
-//     });
+updatePage(1);
